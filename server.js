@@ -33,6 +33,8 @@ app.get('/download',(req,res,next) => {
     }).pipe(res)
 })
 
-app.listen(3333, ()=>{
-    console.log('http://localhost:3333')
+var port = process.env.PORT || 8080;
+
+app.listen(port, ()=>{
+    console.log('http://localhost:'+ port)
 })
