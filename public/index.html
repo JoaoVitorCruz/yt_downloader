@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ytdl :D</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0px;
+            padding: 0px;
+        }
+        body {
+            font-family: sans-serif;
+        }
+        .header {
+            width: 100%;
+            height: 50px;
+            background: #111;
+            color: #f5f5f5;
+            line-height: 50px;
+            text-align: center;
+            font-size: bolder;
+        }
+        .form {
+            padding: 100px 50px;
+            background: linear-gradient(to right, #8e9eab, #eef2f3);
+        }
+        .form .form-element {
+            width: 400px;
+            margin: 10px auto;
+        }
+        .form .form-element label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form .form-element input {
+            outline: none;
+            width: 100%;
+            padding: 10px;
+            border: solid 1px #888;
+        }
+        .form .form-element button {
+            width: 100%;
+            height: 40px;
+            background: #111;
+            color: #f5f5f5;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .video-data {
+            width: 400px;
+            margin: 60px auto;
+            display: none;
+        }
+        .video-data .data .thumbnail img {
+            width: 100%;            
+        }
+        .video-data .data .info {
+            margin-top: 10px;
+        }
+        .video-data .data .info h2 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #222;
+        }
+        .video-data .data .info p {
+            font-size: 13px;
+            color: #555;
+        }
+        .video-data .controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .video-data .controls select, 
+        .video-data .controls button {
+            width: 48%;
+            height: 40px;
+        }
+        .video-data .controls button {
+            border: solid 1px #888;
+            color: 111;
+            background-color: transparent;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        Youtube Video Downloader
+    </div>
+
+    <div class="form">
+        <div class="form-element">
+            <label for="videoURL">Insira a URL do video:</label>
+            <input type="text" id="videoURL">
+        </div>
+        <div class="form-element">
+            <button id="get-video-info-btn">Download</button>
+        </div>
+    </div>
+    <div class="video-data">
+        <div class="data">
+            <div class="thumbnail">
+                <img>
+            </div>
+            <div class="info">
+                <h2>Lorem ipsum dolor sit, amet consectetur adipisicing elit</h2>
+                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat consectetur ipsa ab expedita aliquam, commodi molestias atque.</p>
+            </div>
+        </div>
+        <div class="controls">
+            <input type = "hidden" id="video-url">
+            <select id = "download-options"></select>
+            <button id="download-btn">download</button>
+        </div>
+    </div>
+    
+    <script>
+        const host = document.URL
+        document.querySelector('#get-video-info-btn').addEventListener('click', ()=>{
+            let videoURL = document.querySelector('#videoURL').value.trim()
+            alert('Processando, pressione em OK e aguarde!')
+            if (videoURL.length == 0) {
+                alert('Insira o link do video')
+            } else {
+                fetch(host + 'videoInfo?videoURL=' + videoURL)
+                .then(response => {
+                    return response.json()
+                })
+                .then(data => {
+                    let detailNodes = {
+                        thumbnail : document.querySelector('.video-data .thumbnail img'),
+                        title : document.querySelector('.video-data .info h2'),
+                        description : document.querySelector('.video-data .info p'),
+                        videoURL : document.querySelector('.video-data .controls #video-url'),
+                        downloadOptions :  document.querySelector('#download-options')
+                    }
+                    
+                    let html = ""
+
+                    for(let i = 0; i < data.formats.length ; i++) {
+                        if (data.formats[i].container != 'mp4') {
+                            continue
+                        } else {
+                            html += `
+                            <option value=${data.formats[i].itag}>
+                                ${data.formats[i].container} - ${data.formats[i].qualityLabel}
+                            </option>`
+
+                        }
+                        
+                    }
+                    
+                    detailNodes.thumbnail.src = data.videoDetails.thumbnails[data.videoDetails.thumbnails.length-1].url
+                    detailNodes.description.innerText = data.videoDetails.description
+                    detailNodes.title.innerText = data.videoDetails.title
+                    detailNodes.videoURL.value = data.videoDetails.video_url
+                    detailNodes.downloadOptions.innerHTML = html
+
+                    document.querySelector('.video-data').style.display = "block"
+                    document.querySelector('.video-data').scrollIntoView({behavior:"smooth"})
+
+                })
+                .catch(err => {
+                    alert('Oops! algo deu errado.')
+                    console.log(err)
+                    console.log(videoURL)
+                }) 
+            
+                document.querySelector('#download-btn').addEventListener('click',()=>{
+                    let itag = document.querySelector('#download-options').value
+                    let videoURL = document.querySelector('#video-url').value
+
+                    window.open(host+'download?videoURL='+videoURL+'&itag='+itag)
+                })
+            }
+        })
+    </script>
+</body>
+
+</html>
