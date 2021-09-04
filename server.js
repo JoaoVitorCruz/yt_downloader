@@ -29,7 +29,8 @@ app.get('/download',(req,res,next) => {
     res.header('Content-disposition','attachment;\ filename="video.mp4"')
     
     ytdl(videoURL, {
-        filter: format => format.itag == itag
+        filter: format => {format.itag === itag
+        }
     }).pipe(res)
 })
 
