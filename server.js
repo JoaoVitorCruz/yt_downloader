@@ -29,12 +29,11 @@ app.get('/download',(req,res,next) => {
     res.header('Content-disposition','attachment;\ filename="video.mp4"')
     
     ytdl(videoURL, {
-        filter: format => {format.itag === itag
-        }
+        filter: format => format.itag == itag
     }).pipe(res)
 })
 
-var port = process.env.PORT || 8080;
+const port = process.env.PORT || 8080;
 
 app.listen(port, ()=>{
     console.log('http://localhost:'+ port)
